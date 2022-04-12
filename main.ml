@@ -1,4 +1,5 @@
-let lexbuf = Lexing.from_channel stdin 
+let ch = open_in (Sys.argv.(1)) in
+let lexbuf = Lexing.from_channel ch in
 
 let ast = Parser.input Lexer.main lexbuf 
 
