@@ -13,10 +13,12 @@ rule lexeur = parse
   | "intial stack symbol:"  { DINSS }
   | "transitions:"          { TRANS }
   | espace            { lexeur lexbuf }
+  | "end"             { lexeur lexbuf }
   | ","               { VIRG }
   | ";"               { PVIRG }
   | ')'			          { PARD }
   | '('			          { PARG }
   | lettre            { LETTER(Lexing.lexeme lexbuf) }
   | eof			{ EOF }
+  | _ { failwith "Fichier d'entrée incorrect."}
   
