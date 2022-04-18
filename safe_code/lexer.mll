@@ -16,7 +16,7 @@ let transition = ["( "]lettre[" , "]lettre-ou-vide[" , "]lettre[" , "]lettre[" ,
 let lettre-ou-vide = (lettre)?
 let stack = (nonemptystack)?
 let nonemptystack = lettre([" ; "]nonemptystack)?
-let lettre = [0-9a-zA-Z]
+let lettre = ['0'-'9''a'-'z''A'-'Z']
 
 rule main = parse
   | layout		{ main lexbuf }
