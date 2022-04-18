@@ -7,10 +7,14 @@ let espace = [ ' ' '\t' '\n']
 
 rule lexeur = parse
   | "input symbols:"    { DINSY }
+  | "stack symbols:"    { DSTSY }
+  | "states:"           { DSTAT }
+  | "initial state:"    { DINST }
+  | "intial stack symbol:"  { DINSS }
   | espace            { lexeur lexbuf }
   | ","               { VIRG }
   | ')'			          { PARD }
   | '('			          { PARG }
-  | lettre            { CHAR(Lexing.lexeme lexbuf) }
+  | lettre            { LETTER(Lexing.lexeme lexbuf) }
   | eof			{ EOF }
   

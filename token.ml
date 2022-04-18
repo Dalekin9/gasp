@@ -1,7 +1,11 @@
 
 type token =
-    CHAR of string 
+    LETTER of string 
   | DINSY
+  | DSTSY
+  | DSTAT
+  | DINST
+  | DINSS
   | PARG
   | PARD
   | VIRG
@@ -9,8 +13,12 @@ type token =
 
 
 let to_string = function
-    CHAR i -> i^" "
+    LETTER i -> i^" "
   | DINSY -> "input symobls : "
+  | DSTSY -> "\nstack symobls : "
+  | DSTAT -> "\nstates : "
+  | DINST -> "\ninitial state: "
+  | DINSS -> "\nintial stack symbol: "
   | PARG -> "("
   | PARD -> ")"
   | VIRG -> ","
