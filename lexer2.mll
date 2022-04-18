@@ -11,8 +11,10 @@ rule lexeur = parse
   | "states:"           { DSTAT }
   | "initial state:"    { DINST }
   | "intial stack symbol:"  { DINSS }
+  | "transitions:"          { TRANS }
   | espace            { lexeur lexbuf }
   | ","               { VIRG }
+  | ";"               { PVIRG }
   | ')'			          { PARD }
   | '('			          { PARG }
   | lettre            { LETTER(Lexing.lexeme lexbuf) }
