@@ -1,5 +1,5 @@
 {
-  open Token
+  open Parser
 }
 
 let lettre = ['0'-'9''a'-'z''A'-'Z']
