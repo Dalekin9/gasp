@@ -5,10 +5,10 @@
 %%
 
 
-automate : decla=declarations { (decla) }
+automate : decla=declarations trans=transitions EOF { (decla, trans) }
 
-declarations : a=inputsymbols b=stacksymbols c=states d=initialstate
-  { Declarations(a, b, c, d) }
+declarations : a=inputsymbols b=stacksymbols c=states d=initialstate e=initialstack
+  { Declarations(a, b, c, d, e) }
 
 inputsymbols : DINSY a=suitelettresnonvide { Inputsymbols(Suitelettrenonvide(a)) }
 
@@ -27,6 +27,7 @@ suitelettresnonvide :
 transitions : TRANS a=translist { Transitions(Translist(a)) }
 
 translist : 
+  | a=transition { a::[] }
   | a=transition b=translist { (a::b) }
   | { [] }
 
@@ -34,7 +35,7 @@ transition : PARG a=letter VIRG b=lettreouvide VIRG c=letter VIRG d=letter VIRG 
   { Transition(a,b,c,d,e) }
 
 lettreouvide : 
-  | a=letter {(a)}
+  | a=LETTER {LETTER(a)}
   | { Epsilon }
 
 stack :
@@ -42,7 +43,7 @@ stack :
   | { Epsilon }
 
 nonemptystack :
-  | a=letter { (a) }
+  | a=letter { (a::[]) }
   | a=letter PVIRG b=nonemptystack { (a::b)}
   
 letter : a=LETTER {LETTER(a)}

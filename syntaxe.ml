@@ -32,7 +32,7 @@ type stacksymbols = Stacksymbols of suitelettresnonvide
 
 type inputsymbols = Inputsymbols of suitelettresnonvide
 
-type declarations = Declarations of inputsymbols * stacksymbols * states * initialstate
+type declarations = Declarations of inputsymbols * stacksymbols * states * initialstate * initialstack
 
-type automate = declarations
+type automate = declarations * transitions
               

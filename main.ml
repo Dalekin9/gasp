@@ -10,7 +10,7 @@ let _ =
   let ch = open_in (Sys.argv.(1)) in
   let lexbuf = Lexing.from_channel ch in
   try
-    Parser.automate Lexer.lexeur lexbuf
+    Parser.automate Lexer.lexeur lexbuf 
   with
     | Parser.Error ->
     Printf.fprintf stderr "%a: Syntax error\n" print_position lexbuf;
