@@ -10,7 +10,7 @@ rule lexeur = parse
   | "stack symbols:"    { DSTSY }
   | "states:"           { DSTAT }
   | "initial state:"    { DINST }
-  | "intial stack symbol:"  { DINSS }
+  | "initial stack symbol:"  { DINSS }
   | "transitions:"          { TRANS }
   | espace            { lexeur lexbuf }
   | "end"             { lexeur lexbuf }

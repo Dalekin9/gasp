@@ -1,59 +1,48 @@
-%{ open Syntaxe %}
-
 %token <string> LETTER
-%token DINSY DSTSY
-   DSTAT
-   DINST
-   DINSS
-   TRANS
-   PARG
-   PARD
-   VIRG
-   PVIRG
-   EOF
+%token DINSY DSTSY DSTAT DINST DINSS TRANS PARG PARD VIRG PVIRG EOF
 %start <Syntaxe.automate> automate
-
+%{ open Syntaxe %}
 %%
 
 
-automate : decla=declarations trans=transitions { (decla, trans) }
+automate : decla=declarations { (decla) }
 
-declarations : a=inputsymbols b=stacksymbols c=states d=initialstate e=initialstack
-  { Declarations(a,b,c,d,e) }
+declarations : a=inputsymbols b=stacksymbols c=states d=initialstate
+  { Declarations(a, b, c, d) }
 
-inputsymbols : DINSY a=suitelettresnonvide { Inputsymbols(a) }
+inputsymbols : DINSY a=suitelettresnonvide { Inputsymbols(Suitelettrenonvide(a)) }
 
-stacksymbols : DSTSY b=suitelettresnonvide { Stacksymbols(b) }
+stacksymbols : DSTSY b=suitelettresnonvide { Stacksymbols(Suitelettrenonvide(b)) }
 
-states : DSTAT c=suitelettresnonvide { States(c) }
+states : DSTAT c=suitelettresnonvide { States(Suitelettrenonvide(c)) }
 
-initialstate : DSTSY b=letter { Initialstate(b) }
+initialstate : DINST b=letter { Initialstate(b) }
 
-initialstack : DSTSY b=letter { Initialstack(b) }
+initialstack : DINSS b=letter { Initialstack(b) }
 
 suitelettresnonvide :
-  | a=LETTER {LETTER(a)}
-  | a=letter VIRG b=suitelettresnonvide { (SuiteLettresNonVides(a, b)) }
+  | a=letter { a::[] }
+  | a=letter VIRG b=suitelettresnonvide { (a::b) }
 
-transitions : TRANS a=translist { Transitions(a) }
+transitions : TRANS a=translist { Transitions(Translist(a)) }
 
 translist : 
-  | a=transition b=translist { Translist(a,b) }
-  | { Epsilon }
+  | a=transition b=translist { (a::b) }
+  | { [] }
 
 transition : PARG a=letter VIRG b=lettreouvide VIRG c=letter VIRG d=letter VIRG e=stack PARD
   { Transition(a,b,c,d,e) }
 
 lettreouvide : 
-  | a=LETTER {LETTER(a)}
+  | a=letter {(a)}
   | { Epsilon }
 
 stack :
-  | a=nonemptystack { Stack(a)}
+  | a=nonemptystack { Stack(Nonemptystack(a))}
   | { Epsilon }
 
 nonemptystack :
-  | a=LETTER { LETTER(a) }
-  | a=letter PVIRG b=nonemptystack { NonEmptyStack(a,b)}
-
+  | a=letter { (a) }
+  | a=letter PVIRG b=nonemptystack { (a::b)}
+  
 letter : a=LETTER {LETTER(a)}
