@@ -10,21 +10,21 @@ automate : decla=declarations trans=transitions EOF { (decla, trans) }
 declarations : a=inputsymbols b=stacksymbols c=states d=initialstate e=initialstack
   { Declarations(a, b, c, d, e) }
 
-inputsymbols : DINSY a=suitelettresnonvide { Inputsymbols(Suitelettrenonvide(a)) }
+inputsymbols : DINSY a=suitelettresnonvide { Inputsymbols((a)) }
 
-stacksymbols : DSTSY b=suitelettresnonvide { Stacksymbols(Suitelettrenonvide(b)) }
+stacksymbols : DSTSY b=suitelettresnonvide { Stacksymbols((b)) }
 
-states : DSTAT c=suitelettresnonvide { States(Suitelettrenonvide(c)) }
+states : DSTAT c=suitelettresnonvide { States((c)) }
 
-initialstate : DINST b=letter { Initialstate(b) }
+initialstate : DINST b=LETTER { Initialstate(b) }
 
-initialstack : DINSS b=letter { Initialstack(b) }
+initialstack : DINSS b=LETTER { Initialstack(b) }
 
 suitelettresnonvide :
-  | a=letter { a::[] }
-  | a=letter VIRG b=suitelettresnonvide { (a::b) }
+  | a=LETTER { a::[] }
+  | a=LETTER VIRG b=suitelettresnonvide { (a::b) }
 
-transitions : TRANS a=translist { Transitions(Translist(a)) }
+transitions : TRANS a=translist { Transitions((a)) }
 
 translist : 
   | a=transition { a::[] }

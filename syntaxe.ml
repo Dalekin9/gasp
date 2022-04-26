@@ -14,23 +14,17 @@ type letterouvide =
 type transition = 
   | Transition of letter * letterouvide * letter * letter * stack
 
-type translist = 
-  | Translist of transition list
+type transitions = Transitions of transition list
 
-type transitions = Transitions of translist
+type initialstack = Initialstack of string
 
-type suitelettresnonvide = 
-  | Suitelettrenonvide of letter list  
+type initialstate = Initialstate of string
 
-type initialstack = Initialstack of letter
+type states = States of string list
 
-type initialstate = Initialstate of letter
+type stacksymbols = Stacksymbols of string list
 
-type states = States of suitelettresnonvide
-
-type stacksymbols = Stacksymbols of suitelettresnonvide
-
-type inputsymbols = Inputsymbols of suitelettresnonvide
+type inputsymbols = Inputsymbols of string list
 
 type declarations = Declarations of inputsymbols * stacksymbols * states * initialstate * initialstack
 

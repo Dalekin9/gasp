@@ -1,39 +1,12 @@
-
-MENHIR=menhir
-OCAMLC=ocamlc
-OCAMLLEX=ocamllex
-
-SOURCES = syntaxe.ml parser.ml lexer.ml main.ml
-
-OBJECTS = $(SOURCES:.ml=.cmo)
-
-.PHONY: clean all 
-
-all: parser
-
-parser: syntaxe.cmo parser.cmi parser.cmo lexer.cmo main.cmo 
-	$(OCAMLC) -o $@ $(OBJECTS)
-
-%.cmo: %.ml
-	$(OCAMLC) -c $< -o $@
-
-%.cmi: %.mli
-	$(OCAMLC) -c $< -o $@
-
-%.ml %.mli: %.mly
-	rm -f $(<:.mly=.conflicts)
-	$(MENHIR) -v --infer $<
-
-%.ml: %.mll
-	$(OCAMLLEX) $<
-
-parser.mly: syntaxe.ml
-
-lexer.mll: parser.ml
+make:
+	ocamlc -c syntaxe.ml
+	menhir --dump parser.mly
+	ocamlc parser.mli
+	ocamlc -c parser.ml
+	ocamllex lexer.mll
+	ocamlc -c lexer.ml
+	ocamlc -c interp.ml
+	ocamlc -o main syntaxe.cmo lexer.cmo parser.cmo interp.cmo main.ml
 
 clean:
-	rm -fr parser.mli parser.ml lexer.ml *.cmo parser *.cmi *~ *.automaton *.conflicts
-
-parser.cmo: syntaxe.cmo parser.cmi
-lexer.cmo: parser.cmo
-main.cmo: parser.cmo lexer.cmo
+	rm -f *.cmo *.cmi lexer.ml parser.automaton parser.conflicts parser.ml parser.mli main
