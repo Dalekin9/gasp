@@ -1,7 +1,5 @@
-type letter = LETTER of string
-
 type nonemptystack = 
-  | Nonemptystack of letter list
+  | Nonemptystack of string list
 
 type stack = 
   | Stack of nonemptystack
@@ -11,8 +9,7 @@ type letterouvide =
   | LETTER of string
   | Epsilon
 
-type transition = 
-  | Transition of letter * letterouvide * letter * letter * stack
+type transition = Transition of (string * letterouvide * string * string * stack)
 
 type transitions = Transitions of transition list
 

@@ -1,109 +1,110 @@
 open Syntaxe
 
-type config = int * string list * string list
-
-(* nos variables *)
-let inputsymbols = ref []
-let stacksymbols = ref []
-let states = ref []
-let initialstate = ref ""
-let initialstack = ref []
-let trans = ref [] 
-let configs = ref []
-
 (*affiche letat actuel sur le terminal*)
 let rec print_config l =
   match l with
+  | [] -> print_string "Fin.\n"
   | (x,y,z)::a -> 
     print_string ("( "^", "^", "^")\n");
     print_config a
-  | _ -> print_string "Fin.\n"
 
 (*retourne une transition possible, ou rien*)
-let get_transition etat stack lettre =
-  (*
-  retourne some transition si exist
-  sinon none   
-  *)
-  
+let rec get_transition etat stack lettre transis =
+  match transis with
+  | [] -> None
+  | (a,b,c,d,e)::l ->
+    if (a = etat) then (
+      if (b = lettre) then (
+        if (c = stack) then
+          Some(a,b,c,d,e)
+        else 
+          get_transition etat stack lettre l  
+      ) else get_transition etat stack lettre l  
+    ) else
+      get_transition etat stack lettre l  
 
+let rec print_liste l =
+  match l with
+  | [] -> print_string "\n"
+  | a::b -> print_string (a^" ") ; print_liste b
 
 (*fonction principale*)
-let interprete = 
-  let s = "vree" in
-  let mot = List.init (String.length s) (String.get s) in
-  let rec action mot =
-    (*
-    si stack non vide
-      recuperer la 1ere lettre du mot
-      si vide et que stack vide
-        print config
-      sinon erreur
-        recuperer une transition possible
-        si transition  
-          creer config puis add a la liste
-        sinon
-          erreur
-    sinon
-      erreur
-    *)
+let interprete st stk tr1 mt = 
+
+  let rec action m state stack trans configs = 
+    if (List.length stack != 0) then 
+      (
+        if List.length m = 0 then
+          print_string "Mot vide mais pile non vide.\n"
+        else 
+          (
+            let letter = List.hd m in
+            let pile = List.hd stack in
+            let tr = get_transition state pile letter trans in
+            match tr with
+            | None -> (print_string "Pas de transition applicable.\nListe stack : \n";print_liste stack )
+            | Some (a,b,c,d,e) -> 
+              (
+                let mm = List.tl m in
+                let stck = List.append e (List.tl stack) in
+                action mm d stck trans ( (d,stck,mm)::configs )
+              )
+          )
+      )
+    else
+      (
+        if List.length m = 0 then
+          print_config (List.rev configs)
+        else 
+          print_string "Pile vide mais mot non vide.\n"
+      ) 
+  in
+
+  let mot = List.map (fun x -> Char.escaped x) (List.init (String.length mt) (String.get mt)) in
+  let debconf = (st,stk,mot)::[] in
+  action mot st stk tr1 debconf
 
 
-(**  
-Initialisation des variables
-**)
+(* retourne la pile*)
+let getStck x =
+  match x with
+  | Stack(Nonemptystack(a)) -> a
+  | Epsilon -> ""::[]
 
-(*initialise l'intial stack*)
-let setinitialstack a =
+(* retourne une lettre ou rien *)
+let getLetterOuVide x =
+  match x with
+  | LETTER(a) -> a
+  | Epsilon -> " "
+
+(* retoune la liste des transitions *)
+let rec getTransitions l trans =
+  match l with
+  | [] -> trans
+  | Transition(a,b,c,d,e)::x -> (
+    let st = getStck e in
+    let b2 = getLetterOuVide b in
+    getTransitions x ((a,b2,c,d,st)::trans) )
+
+(* retourne la pile initiale *)
+let getStack a = 
   match a with 
-  | Initialstack(x) -> initialstack := x::[]
+  | Initialstack(x) -> x
 
-
-(*initialise l'intial state*)
-let setinitialstate a =
+(* retourne l'etat initial *)
+let getState a = 
   match a with 
-  | Initialstate(x) -> initialstate := x
-
-
-(*initialise les states*)
-let setstates a =
-  match a with 
-  | States(x) -> states := x
-
-
-(*initialise les stacks symbols*)
-let setstacksymbols a =
-  match a with 
-  | Stacksymbols(x) -> stacksymbols := x
-
-
-(* initialise les input symbols*)
-let setinputsymbols a =
-  match a with 
-  | Inputsymbols(x) -> inputsymbols := x
-
-
-(*fonction pour les declarations*)
-let declarations dcl = 
-  match dcl with
-  | Declarations(a,b,c,d,e) -> 
-    setinputsymbols a;
-    setstacksymbols b;
-    setstates c;
-    setinitialstate d;
-    setinitialstack e;
-  
-
-(*initialise les transitions*)
-let transitions trs =
-  match trs with
-  | Transitions(t) -> 
-    trans := t
-  
+  | Initialstate(x) -> x
 
 
 (*fonction principal d'appel*)
-let autom (dcl,trs) = 
-  declarations dcl
-  transitions trs
-  interprete
+let autom (dcl,trs) mot = 
+  print_string mot;
+  match dcl with
+  | Declarations(a,b,c,d,e) -> 
+    match trs with 
+    | Transitions(t) -> 
+      let stck = getStack e in
+      let ste = getState d in
+      let tr = getTransitions t [] in
+    interprete ste (stck::[]) tr mot

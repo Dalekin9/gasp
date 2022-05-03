@@ -31,7 +31,7 @@ translist :
   | a=transition b=translist { (a::b) }
   | { [] }
 
-transition : PARG a=letter VIRG b=lettreouvide VIRG c=letter VIRG d=letter VIRG e=stack PARD
+transition : PARG a=LETTER VIRG b=lettreouvide VIRG c=LETTER VIRG d=LETTER VIRG e=stack PARD
   { Transition(a,b,c,d,e) }
 
 lettreouvide : 
@@ -43,7 +43,5 @@ stack :
   | { Epsilon }
 
 nonemptystack :
-  | a=letter { (a::[]) }
-  | a=letter PVIRG b=nonemptystack { (a::b)}
-  
-letter : a=LETTER {LETTER(a)}
+  | a=LETTER { (a::[]) }
+  | a=LETTER PVIRG b=nonemptystack { (a::b)}
