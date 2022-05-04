@@ -122,6 +122,44 @@ let getState a =
   match a with 
   | Initialstate(x) -> x
 
+(* retournes les etats *)
+let getStates a =
+  match a with
+  | States(x) -> x
+
+(* retourne les symboles de pile *)
+let getStackSymb a =
+  match a with
+  | Stacksymbols(x) -> x
+
+(* retourne les inputs symbols *)
+let getInputSymb a = 
+  match a with
+  | Inputsymbols(x) -> x
+
+let rec deterministe tr =
+  match tr with
+  | (a,b,c,d,e)::l -> if (b = "") then false else deterministe l
+  | [] -> true
+
+let verification stacksymbols states initstate initstack trans =
+  if (List.exists (fun x -> x = initstate) states) then (
+    if (List.exists (fun x -> x = initstack) stacksymbols) then (
+      if (deterministe trans) then (
+        true
+      ) else (
+            print_string "L'automate n'est pas déterminitste.\n";
+            false
+      )
+    ) else (
+          print_string "Le symbole de pile initial n'est pas compris dans la liste des symboles de pile.\n";
+          false
+    )
+  ) else (
+    print_string "L'etat initial n'est pas compris dans la liste des etats.\n";
+    false
+  )
+
 
 (*fonction principal d'appel*)
 let autom (dcl,trs) mot = 
@@ -129,7 +167,10 @@ let autom (dcl,trs) mot =
   | Declarations(a,b,c,d,e) -> 
     match trs with 
     | Transitions(t) -> 
+      let symbstck = getStackSymb b in
+      let states = getStates c in
       let stck = getStack e in
       let ste = getState d in
       let tr = getTransitions t [] in
-    interprete ste (stck::[]) tr mot
+      if (verification symbstck states ste stck tr) then
+        interprete ste (stck::[]) tr mot
