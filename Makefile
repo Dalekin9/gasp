@@ -1,6 +1,6 @@
 make:
 	ocamlc -c syntaxe.ml
-	menhir --dump parser.mly
+	menhir --dump -v --infer parser.mly
 	ocamlc parser.mli
 	ocamlc -c parser.ml
 	ocamllex lexer.mll

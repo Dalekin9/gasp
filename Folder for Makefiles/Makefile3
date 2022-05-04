@@ -3,7 +3,7 @@ MENHIR=menhir
 OCAMLC=ocamlc
 OCAMLLEX=ocamllex
 
-SOURCES = syntaxe.ml parser.ml lexer.ml main.ml
+SOURCES = syntaxe.ml parser.ml lexer.ml main.ml interp.ml
 
 OBJECTS = $(SOURCES:.ml=.cmo)
 
@@ -11,7 +11,7 @@ OBJECTS = $(SOURCES:.ml=.cmo)
 
 all: parser
 
-parser: syntaxe.cmo parser.cmi parser.cmo lexer.cmo main.cmo 
+parser: syntaxe.cmo parser.cmi parser.cmo lexer.cmo main.cmo interp.cmo
 	$(OCAMLC) -o $@ $(OBJECTS)
 
 %.cmo: %.ml

@@ -27,7 +27,6 @@ suitelettresnonvide :
 transitions : TRANS a=translist { Transitions((a)) }
 
 translist : 
-  | a=transition { a::[] }
   | a=transition b=translist { (a::b) }
   | { [] }
 
