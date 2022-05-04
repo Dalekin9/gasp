@@ -1,11 +1,20 @@
 open Syntaxe
 
+let rec print_liste_conf l =
+  match l with
+  | [] -> print_string "";
+  | a::b -> print_string (a) ; print_liste_conf b
+
 (*affiche letat actuel sur le terminal*)
 let rec print_config l =
   match l with
   | [] -> print_string "Fin.\n"
   | (x,y,z)::a -> 
-    print_string ("( "^", "^", "^")\n");
+    print_string ("( "^x^", ");
+    print_liste_conf y;
+    print_string (", ");
+    print_liste_conf z;
+    print_string ")\n";
     print_config a
 
 (*retourne une transition possible, ou rien*)
@@ -25,8 +34,8 @@ let rec get_transition etat stack lettre transis =
 
 let rec print_liste l =
   match l with
-  | [] -> print_string "\n"
-  | a::b -> print_string (a^" ") ; print_liste b
+  | [] -> print_string ".\n"
+  | a::b -> print_string (a^",") ; print_liste b
 
 (*fonction principale*)
 let interprete st stk tr1 mt = 
@@ -35,18 +44,30 @@ let interprete st stk tr1 mt =
     if (List.length stack != 0) then 
       (
         if List.length m = 0 then
-          print_string "Mot vide mais pile non vide.\n"
+          (
+            let letter = "" in
+            let pile = List.hd (List.rev stack) in
+            let tr = get_transition state pile letter trans in
+            match tr with
+            | None -> (print_string "Mot vide et pas de transition applicable.\nListe stack : \n";print_liste stack )
+            | Some (a,b,c,d,e) -> 
+              (
+                let mm = [] in
+                let stck = (List.rev (List.tl (List.rev stack)))@e in
+                action mm d stck trans ( (d,stck,mm)::configs )
+              )
+          )
         else 
           (
             let letter = List.hd m in
-            let pile = List.hd stack in
+            let pile = List.hd (List.rev stack) in
             let tr = get_transition state pile letter trans in
             match tr with
             | None -> (print_string "Pas de transition applicable.\nListe stack : \n";print_liste stack )
             | Some (a,b,c,d,e) -> 
               (
                 let mm = List.tl m in
-                let stck = List.append e (List.tl stack) in
+                let stck = (List.rev (List.tl (List.rev stack)))@e in
                 action mm d stck trans ( (d,stck,mm)::configs )
               )
           )
@@ -56,7 +77,12 @@ let interprete st stk tr1 mt =
         if List.length m = 0 then
           print_config (List.rev configs)
         else 
-          print_string "Pile vide mais mot non vide.\n"
+          (
+            print_int (List.length m);
+            print_string "Mot : \n";
+            print_liste m;
+            print_string "Pile vide mais mot non vide.\n"
+          )
       ) 
   in
 
@@ -69,13 +95,13 @@ let interprete st stk tr1 mt =
 let getStck x =
   match x with
   | Stack(Nonemptystack(a)) -> a
-  | Epsilon -> ""::[]
+  | Epsilon -> []
 
 (* retourne une lettre ou rien *)
 let getLetterOuVide x =
   match x with
   | LETTER(a) -> a
-  | Epsilon -> " "
+  | Epsilon -> ""
 
 (* retoune la liste des transitions *)
 let rec getTransitions l trans =
@@ -99,7 +125,6 @@ let getState a =
 
 (*fonction principal d'appel*)
 let autom (dcl,trs) mot = 
-  print_string mot;
   match dcl with
   | Declarations(a,b,c,d,e) -> 
     match trs with 
