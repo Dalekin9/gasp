@@ -75,7 +75,9 @@ let interprete st stk tr1 mt =
     else
       (
         if List.length m = 0 then
+          (print_string "Configurations : \n";
           print_config (List.rev configs)
+          )
         else 
           (
             print_int (List.length m);
@@ -137,15 +139,40 @@ let getInputSymb a =
   match a with
   | Inputsymbols(x) -> x
 
-let rec deterministe tr =
+let rec checkIfOtherNormalTrans p1 p2 p3 l nb =
+  match l with
+  | [] -> nb
+  | (a,b,c,d,e)::k -> if ( a = p1 && b = p2 && c = p3 ) then checkIfOtherNormalTrans p1 p2 p3 k (nb + 1) else checkIfOtherNormalTrans p1 p2 p3 k nb
+
+let rec checkIfOtherEpsTrans p1 p2 l nb =
+  match l with
+  | [] -> nb
+  | (a,b,c,d,e)::k -> if ( a = p1 && c = p2 ) then checkIfOtherEpsTrans p1 p2 k (nb + 1) else checkIfOtherEpsTrans p1 p2 k nb
+
+let rec deterministe tr all =
   match tr with
-  | (a,b,c,d,e)::l -> if (b = "") then false else deterministe l
   | [] -> true
+  | (a,b,c,d,e)::l -> 
+    match b with 
+    | "" -> 
+      if (checkIfOtherEpsTrans a c all 0 != 1) then
+        ( print_string ("epsilon : "^a^" "^b^" "^c^" "^d);
+          print_int (checkIfOtherEpsTrans a c all 0);
+        false )
+      else 
+        deterministe l all
+    | x ->
+      if (checkIfOtherNormalTrans a b c all 0 != 1) then
+        (print_string ("normal : "^a^" "^b^" "^c^" "^d);
+          print_int (checkIfOtherNormalTrans a b c all 0);
+          false)
+      else deterministe l all
+  
 
 let verification stacksymbols states initstate initstack trans =
   if (List.exists (fun x -> x = initstate) states) then (
     if (List.exists (fun x -> x = initstack) stacksymbols) then (
-      if (deterministe trans) then (
+      if (deterministe trans trans) then (
         true
       ) else (
             print_string "L'automate n'est pas déterminitste.\n";
