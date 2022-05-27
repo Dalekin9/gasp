@@ -43,21 +43,24 @@ let rec print_config l =
 
 let rec get_action etat stack lettre progr  =
   match progr with
-  | Distinct(dinst, cases) -> 
-      match dinst with
-      | "top" ->(match get_case stack cases with
-                | None ->  None
-                | Some FinalCase(value, action) -> Some action
-                | Some Case(value, distinct) -> get_action etat stack lettre distinct)
-      | "next" -> (match get_case lettre cases with
-                  | None ->  None
-                  | Some FinalCase(value, action) -> Some action
-                  | Some Case(value, distinct) -> get_action etat stack lettre distinct)
-      | "state" -> (match get_case etat cases with
-                    | None ->  print_string "None\n";None
+  | ProgAct(act) -> Some act
+  | ProgDis(dist) -> 
+      match dist with
+      | Distinct(dinst, cases) -> 
+          match dinst with
+          | "top" ->(match get_case stack cases with
+                    | None ->  None
                     | Some FinalCase(value, action) -> Some action
-                    | Some Case(value, distinct) -> get_action etat stack lettre distinct)
-      | _ -> print_string "None";None
+                    | Some Case(value, distinct) -> get_action etat stack lettre (ProgDis(distinct)))
+          | "next" -> (match get_case lettre cases with
+                      | None ->  None
+                      | Some FinalCase(value, action) -> Some action
+                      | Some Case(value, distinct) -> get_action etat stack lettre (ProgDis(distinct)))
+          | "state" -> (match get_case etat cases with
+                        | None ->  print_string "None\n";None
+                        | Some FinalCase(value, action) -> Some action
+                        | Some Case(value, distinct) -> get_action etat stack lettre (ProgDis(distinct)))
+          | _ -> print_string "None";None
                       
 
 let interprete st stk tr1 mt = 
@@ -78,7 +81,7 @@ let interprete st stk tr1 mt =
                 match stack with
                 |x::rest ->
                   action mm state rest progr ( (state,rest,mm)::configs )
-                | [] -> print_string "fuck"
+                | [] -> print_string "Impossible"
               )
             | Some Push(symb) ->
               (
@@ -101,11 +104,10 @@ let interprete st stk tr1 mt =
                 match stack with
                 |x::rest ->
                   action mm state rest progr ( (state,rest,mm)::configs )
-                | [] -> print_string "fuck"
+                | [] -> print_string "Impossible"
               )
             | Some Push(symb) ->
               (
-                print_string "in Push";
                 let stck = symb::stack in
                 action mm state stck progr ( (state,stck,mm)::configs ) 
               )
@@ -131,10 +133,42 @@ let interprete st stk tr1 mt =
   let debconf = (st,stk,mot)::[] in
   action mot st stk tr1 debconf
 
-let verification stacksymbols states initstate initstack =
+let rec sameCase cases used =
+match cases with
+|Cases(caselist) -> 
+  match caselist with
+  | [] -> false
+  | case::rest -> 
+    match case with
+    |FinalCase(str, act) -> 
+      if(List.exists (fun x -> x = str) used) then
+        true                  
+      else
+        sameCase (Cases(rest)) (str::used)
+
+    |Case(str, distin) ->
+      if(List.exists (fun x -> x = str) used) then
+        true                  
+      else
+        sameCase (Cases(rest)) (str::used)
+
+(*Pour le cas Dist vérifie dans chaque liste de cas si *)  
+let rec deterministe prog =
+  match prog with
+  |  ProgAct(act) -> true
+  |  ProgDis(dist) -> 
+      match dist with
+      |Distinct(distinc, cases) -> not (sameCase cases [])
+ 
+let verification stacksymbols states initstate initstack progr =
   if (List.exists (fun x -> x = initstate) states) then (
     if (List.exists (fun x -> x = initstack) stacksymbols) then (
-      true
+      if (deterministe progr) then (
+        true
+      ) else (
+            print_string "L'automate n'est pas déterminitste.\n";
+            false
+      )
     ) else (
       print_string "Le symbole de pile initial n'est pas compris dans la liste des symboles de pile.\n";
       false
@@ -176,5 +210,5 @@ let getInputSymb a =
     let states = getStates c in
     let stck = getStack e in
     let ste = getState d in
-    if (verification symbstck states  ste stck) then
+    if (verification symbstck states  ste stck progr) then
       interprete ste (stck::[]) progr mot

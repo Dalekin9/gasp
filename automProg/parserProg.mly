@@ -48,5 +48,7 @@ distinct :
     | CASE a=STATE OF b=cases  { print_string "distinct\n";Distinct(a,b) }
 
 
-program : PROGR a=distinct { print_string "program\n";(a) }
+program : 
+    | PROGR a=distinct { print_string "program\n";ProgDis(a) }
+    | PROGR a=action {print_string "program\n";ProgAct(a)}
 

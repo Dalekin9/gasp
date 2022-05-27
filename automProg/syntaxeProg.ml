@@ -9,10 +9,6 @@ type letterouvide =
   | LETTER of string
   | Epsilon
 
-type transition = Transition of (string * letterouvide * string * string * stack)
-
-type transitions = Transitions of transition list
-
 type initialstack = Initialstack of string
 
 type initialstate = Initialstate of string
@@ -24,8 +20,6 @@ type stacksymbols = Stacksymbols of string list
 type inputsymbols = Inputsymbols of string list
 
 type declarations = Declarations of inputsymbols * stacksymbols * states * initialstate * initialstack
-
-type disWord = DisWord of string
 
 type action = 
   | Pop 
@@ -41,7 +35,9 @@ and cases = Cases of case list
 
 and distinct = Distinct of string * cases
 
-type program = distinct 
+type program = 
+| ProgDis of distinct
+| ProgAct of action
 
 type automate = declarations * program
               
